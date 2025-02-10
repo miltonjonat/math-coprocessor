@@ -1,0 +1,6 @@
+.cartesi
+.venv
+/cache
+/out
+/output.*
+/deployment_history
