@@ -1,4 +1,3 @@
-# Python DApp Template
+# Math Coprocessor
 
-This is a template for Python Cartesi DApps. It uses python3 to execute the backend application.
-The application entrypoint is the `dapp.py` file.
+Cartesi Coprocessor that allows smart contracts to run math functions in Python
