@@ -1,4 +1,5 @@
 from os import environ
+from asteval import Interpreter
 import logging
 import requests
 
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 rollup_server = environ["ROLLUP_HTTP_SERVER_URL"]
 logger.info(f"HTTP rollup_server url is {rollup_server}")
 
+aeval = Interpreter()
 
 def emit_notice(data):
     notice_payload = {"payload": data["payload"]}
@@ -23,12 +25,21 @@ def handle_advance(data):
         expr_hex = data['payload']
         expr = bytes.fromhex(expr_hex[2:]).decode('utf-8')
         print(f"input: {expr}")
-        result = eval(expr)
+        result = aeval(expr)
         print(f"result: {result}")
-        # TODO: abi-encode result+input
-        result_hex = f"0x{result:064x}"
-        emit_notice({'payload': result_hex})
-        return "accept"
+        if isinstance(result, float):
+            result = round(result)
+            print(f"result (rounded): {result}")
+        if isinstance(result, int):
+            if result < 0:
+                result = result & ((1 << 256) -1)
+                print(f"result (as uint using 2-completion repr): {result}")
+            result_hex = f"0x{result:064x}"
+            emit_notice({'payload': result_hex})
+            return "accept"
+        else:
+            print(f"Error: result is not a number")
+            return "reject"
     
     except Exception as error:
         print(f"Error processing payload: {error}")
