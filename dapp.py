@@ -1,4 +1,6 @@
 from os import environ
+from asteval import Interpreter
+from eth_abi import encode
 import logging
 import requests
 
@@ -8,6 +10,8 @@ logger = logging.getLogger(__name__)
 rollup_server = environ["ROLLUP_HTTP_SERVER_URL"]
 logger.info(f"HTTP rollup_server url is {rollup_server}")
 
+aeval = Interpreter()
+aeval.symtable["encode"] = encode
 
 def emit_notice(data):
     notice_payload = {"payload": data["payload"]}
@@ -20,15 +24,27 @@ def emit_notice(data):
 def handle_advance(data):
     logger.info(f"Received advance request data {data}")
     try:
+        # retrieve and decode input expression
         expr_hex = data['payload']
         expr = bytes.fromhex(expr_hex[2:]).decode('utf-8')
         print(f"input: {expr}")
-        result = eval(expr)
+
+        # evaluate expression
+        result = aeval(expr)
         print(f"result: {result}")
-        # TODO: abi-encode result+input
-        result_hex = f"0x{result:064x}"
-        emit_notice({'payload': result_hex})
-        return "accept"
+
+        # if result is an integer, ABI-encode it to bytes
+        if isinstance(result, int):
+            result = encode(["int256"], [result])
+
+        if isinstance(result, bytes):
+            # emit notice with hex-encoded bytes result
+            emit_notice({"payload": f"0x{result.hex()}"})
+            return "accept"
+        else:
+            # error: result must be a bytes object
+            print(f"Error: expression result should be an integer or an ABI-encoded bytes object")
+            return "reject"
     
     except Exception as error:
         print(f"Error processing payload: {error}")
