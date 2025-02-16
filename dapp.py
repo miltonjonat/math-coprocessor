@@ -35,16 +35,12 @@ def handle_advance(data):
         result = aeval(expr)
         print(f"result: {result}")
 
-        # handle numpy integer types
-        if np.issubdtype(result, np.integer):
-            result = int(result);
-
-        # if result is an integer, ABI-encode it to bytes
-        if isinstance(result, int):
-            result = encode(["int256"], [result])
+        # handle integer types
+        if isinstance(result, (int, np.integer)):
+            result = encode(["int256"], [int(result)])
 
         # handle numpy integer array types
-        if isinstance(result, np.ndarray):
+        elif isinstance(result, np.ndarray):
             if np.issubdtype(result.dtype, np.integer):
                 abi_type = "int256" + "".join(f"[{dim}]" for dim in result.shape)
                 result = encode([abi_type], [result.tolist()])
@@ -55,7 +51,7 @@ def handle_advance(data):
             return "accept"
         else:
             # error: result must be a bytes object
-            print(f"Error: expression result should be an integer or an ABI-encoded bytes object")
+            print(f"Error: expression result should be an integer, a NumPy integer ndarray, or an ABI-encoded bytes object")
             return "reject"
     
     except Exception as error:
