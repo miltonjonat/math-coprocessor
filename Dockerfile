@@ -11,7 +11,8 @@ apt-get update
 apt-get install -y --no-install-recommends \
   busybox-static=1:1.30.1-7ubuntu3 \
   build-essential=12.9ubuntu3 \
-  libssl-dev=3.0.2-0ubuntu1.18
+  libssl-dev=3.0.2-0ubuntu1.18 \
+  libopenblas0-serial=0.3.20+ds-1
 rm -rf /var/lib/apt/lists/* /var/log/* /var/cache/*
 useradd --create-home --user-group dapp
 EOF
