@@ -3,6 +3,7 @@ from asteval import Interpreter
 from eth_abi import encode
 import logging
 import requests
+import numpy as np
 
 logging.basicConfig(level="INFO")
 logger = logging.getLogger(__name__)
@@ -12,6 +13,7 @@ logger.info(f"HTTP rollup_server url is {rollup_server}")
 
 aeval = Interpreter()
 aeval.symtable["encode"] = encode
+aeval.symtable["np"] = np
 
 def emit_notice(data):
     notice_payload = {"payload": data["payload"]}
@@ -33,9 +35,19 @@ def handle_advance(data):
         result = aeval(expr)
         print(f"result: {result}")
 
+        # handle numpy integer types
+        if np.issubdtype(result, np.integer):
+            result = int(result);
+
         # if result is an integer, ABI-encode it to bytes
         if isinstance(result, int):
             result = encode(["int256"], [result])
+
+        # handle numpy integer array types
+        if isinstance(result, np.ndarray):
+            if np.issubdtype(result.dtype, np.integer):
+                abi_type = "int256" + "".join(f"[{dim}]" for dim in result.shape)
+                result = encode([abi_type], [result.tolist()])
 
         if isinstance(result, bytes):
             # emit notice with hex-encoded bytes result
