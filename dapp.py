@@ -32,11 +32,11 @@ def handle_advance(data):
         # retrieve and decode input expression
         expr_hex = data['payload']
         expr = bytes.fromhex(expr_hex[2:]).decode('utf-8')
-        print(f"input: {expr}")
+        logger.info(f"input: {expr}")
 
         # evaluate expression
         result = aeval(expr)
-        print(f"result: {result}")
+        logger.info(f"result: {result}")
 
         # handle integer types
         if isinstance(result, (int, np.integer)):
@@ -54,12 +54,12 @@ def handle_advance(data):
             return "accept"
         else:
             # error: result must be a bytes object
-            print(f"Error: expression result should be an integer, a NumPy integer ndarray, or an ABI-encoded bytes object")
-            return "reject"
+            logger.error(f"Error: expression result should be an integer, a NumPy integer ndarray, or an ABI-encoded bytes object")
+            return "accept"
     
     except Exception as error:
-        print(f"Error processing payload: {error}")
-        return "reject"
+        logger.error(f"Error processing payload: {error}")
+        return "accept"
 
 def handle_inspect(data):
     logger.info(f"Received inspect request data {data}")
