@@ -3,6 +3,7 @@ from asteval import Interpreter
 from eth_abi import encode
 import logging
 import requests
+import math
 import numpy as np
 
 logging.basicConfig(level="INFO")
@@ -14,6 +15,8 @@ logger.info(f"HTTP rollup_server url is {rollup_server}")
 aeval = Interpreter()
 aeval.symtable["encode"] = encode
 aeval.symtable["np"] = np
+aeval.symtable["math"] = math
+aeval.symtable["round"] = round
 
 def emit_notice(data):
     notice_payload = {"payload": data["payload"]}
