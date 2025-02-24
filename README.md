@@ -5,7 +5,7 @@
 ## Introduction
 
 Smart contracts written in Solidity often need to perform mathematical operations that are either too resource intensive, or are simply unavailble in Solidity.
-A trivial example of the latter is to perform an exponentiataion with a floating-point base (i.e., `x^y` where `x` is not an integer).
+A trivial example of the latter is to perform an exponentiation with a floating-point base (i.e., `x^y` where `x` is not an integer).
 
 This project proposes a simple solution using Cartesi Coprocessors, that allows smart contracts to send an arbitrary Python mathematical expression along with a callback to be called with the ABI-encoded result.
 This implementation includes support for [NumPy](https://numpy.org/) and arbitrary ABI encodings.
@@ -29,7 +29,7 @@ Finally, [NumPy](https://numpy.org/) support is illustrated in [Sample3_NumptMat
 
 You may use the [cartesi-coprocessor](https://docs.mugen.builders/cartesi-co-processor-tutorial/installation#1-coprocessor-cli) CLI tool to build and run the project.
 
-Fist, start a devnet:
+First, start a devnet:
 
 ```bash
 cartesi-coprocessor start-devnet
@@ -77,3 +77,9 @@ cast call \
   $SAMPLE1_ADDRESS \
   "value()(int256)" 
 ```
+
+## Deployments
+
+The MathCoprocessor contract is deployed to the following networks and respective addresses:
+- **Holesky Testnet**: `0xD82e72Aa89BF529C808860Db5C16D3d87cE4c9cA`
+
